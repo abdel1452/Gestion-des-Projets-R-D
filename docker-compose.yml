@@ -33,6 +33,3 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
-volumes:
-  pgdata:
-    name: gestion_de_projets_pgdata
