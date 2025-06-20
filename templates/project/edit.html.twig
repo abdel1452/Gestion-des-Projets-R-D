@@ -1,0 +1,18 @@
+{% extends 'project/base.html.twig' %}
+
+{% block title %}Modifier le projet{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1>Modifier le projet</h1>
+
+   {{ form_start(form) }}
+    {{ form_row(form.name) }}
+    {{ form_row(form.description) }}
+    {{ form_row(form.imageFile) }} {# <-- ton champ fichier #}
+    <button class="btn btn-success mt-3">Enregistrer</button>
+{{ form_end(form) }}
+
+    <a href="{{ path('project_index') }}" class="btn btn-link mt-3">Retour à la liste des projets</a>
+</div>
+{% endblock %}

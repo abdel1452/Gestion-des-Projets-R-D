@@ -1,0 +1,15 @@
+{# templates/security/create.html.twig #}
+{% extends 'project/base.html.twig' %}
+
+{% block title %}Créer un administrateur{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h2>Ajouter un nouvel administrateur</h2>
+        {{ form_start(form) }}
+            {{ form_row(form.username) }}
+            {{ form_row(form.password) }}
+            <button type="submit" class="btn btn-primary mt-3">Créer l'admin</button>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

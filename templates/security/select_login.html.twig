@@ -1,0 +1,14 @@
+{% extends 'project/base.html.twig' %}
+
+{% block title %}Choisissez votre type de connexion{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h2>Se connecter en tant que :</h2>
+
+        <div class="mt-4">
+            <a href="{{ path('admin_login') }}" class="btn btn-outline-primary me-3">Administrateur</a>
+            <a href="{{ path('user_register') }}" class="btn btn-outline-success">Utilisateur</a>
+        </div>
+    </div>
+{% endblock %}

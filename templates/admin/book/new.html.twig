@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter un livre{% endblock %}
+
+{% block body %}
+<h1>Ajouter un livre</h1>
+
+{{ form_start(form) }}
+
+    {{ form_row(form.title) }}
+    {{ form_row(form.isbn) }}
+    {{ form_row(form.cover) }}
+    {{ form_row(form.editedAt) }}
+    {{ form_row(form.plot) }}
+    {{ form_row(form.pageNumber) }}
+    {{ form_row(form.status) }}
+
+    <button class="btn btn-primary">Enregistrer</button>
+
+{{ form_end(form) }}
+
+{% endblock %}

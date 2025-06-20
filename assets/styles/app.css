@@ -1,3 +1,103 @@
 body {
-    background-color: skyblue;
+    background-color: white;
 }
+
+.btn-access {
+    border: 2px solid #A4A128;
+    color: #A4A128;
+    background-color: white;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-access:hover {
+    background-color: #A4A128;
+    color: white;
+    box-shadow: 0 0 10px #A4A128;
+}
+
+.btn-uniform {
+    width: 150px; /* ou une autre largeur */
+}
+
+.btn-access::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    border-radius: 100%;
+    transition: width 0.4s ease, height 0.4s ease;
+    z-index: 0;
+}
+
+.btn-access:hover::after {
+    width: 200%;
+    height: 500%;
+}
+
+.btn-access:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(164, 161, 40, 0.5);
+}
+
+.btn-access:disabled,
+.btn-access.disabled {
+    opacity: 1;
+    pointer-events: none;
+    border-color: #A4A128; /* contour vert visible */
+    background-color: #d3d3d3;
+    color: black;
+}
+
+.color-bar {
+    height: 8px;
+    display: flex;
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    z-index: 9999;
+}
+
+.sf-profiler .color-bar {
+    bottom: 40px; /* Adjust the bottom position when the profiler is enabled */
+}
+
+.color-bar > div {
+    flex: 1;
+}
+
+.color1 { background-color: #43425D; }
+.color2 { background-color: #677F8E; }
+.color3 { background-color: #A4A128; }
+
+table td, table th {
+    vertical-align: middle !important;
+}
+
+.project-image {
+    width: 150px;  /* par exemple */
+    height: auto;  /* conserve les proportions */
+    object-fit: contain; /* pour éviter que l'image soit déformée */
+}
+
+.table-container {
+    margin-top: 100px;
+    margin-bottom: 30px;
+    padding: 0 15px;
+}
+
+h1.title {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.large-image {
+    width: 250px;
+    height: auto;
+} 
+

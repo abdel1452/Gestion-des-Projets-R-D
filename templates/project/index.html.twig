@@ -1,0 +1,173 @@
+{% extends 'project/base.html.twig' %}
+{% block title %}Liste des projets{% endblock %}
+
+{% block body %}
+
+{% if app.user %}
+    <div class="alert alert-info">
+        Connecté en tant que : <strong>{{ app.user.username }}</strong><br>
+        Rôles : <strong>{{ app.user.roles|join(', ') }}</strong>
+    </div>
+{% else %}
+    <div class="alert alert-warning">
+        Aucun utilisateur connecté.
+    </div>
+{% endif %}
+
+{# Tri par nom puis description #}
+{% set sortedProjects = projects|sort((a, b) =>
+    a.name == b.name
+        ? (a.description <=> b.description)
+        : (a.name <=> b.name)
+) %}
+
+<div class="container-fluid mb-4">
+
+    {# Bouton Ajouter visible uniquement aux admins #}
+    {% if app.user and is_granted('ROLE_ADMIN') %}
+        <a href="{{ path('project_new') }}" class="btn btn-primary mb-3">➕ Ajouter un projet</a>
+    {% endif %}
+
+    <div class="row mb-3 align-items-center">
+        <div class="col-md-6">
+            <div class="input-group">
+                <input type="text" id="searchInput" class="form-control" placeholder="Rechercher un projet..." autofocus>
+                <button class="btn btn-outline-secondary" type="button" id="searchButton">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+        </div>
+        <div class="col-md-6 text-end">
+            {% include 'project/_resultCount.html.twig' with { projects: projects } %}
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle w-100">
+            <thead class="table-light">
+                <tr>
+                    <th style="width: 15%;">Image</th>
+                    <th style="width: 40%;">Titre et Description</th>
+                    <th style="width: 25%;">Accès</th>
+                    <th style="width: 20%;">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="projectTable">
+                {% for project in sortedProjects %}
+                    <tr style="height: 80px;" data-search="{{ (project.name ~ ' ' ~ project.description)|lower }}">
+                        <td>
+                            {% if app.user and is_granted('ROLE_ADMIN') %}
+                                <img
+                                    src="{{ asset('images/' ~ (project.imageFilename ?: 'default-project.png')) }}"
+                                    alt="{{ project.name ?: 'Image par défaut' }}"
+                                    class="project-image cursor-pointer"
+                                    data-download-url="{{ asset('images/' ~ (project.imageFilename ?: 'default-project.png')) }}"
+                                    style="max-width: 100%; height: auto;"
+                                    title="Cliquez pour télécharger l'image"
+                                />
+                            {% else %}
+                                <img
+                                    src="{{ asset('images/' ~ (project.imageFilename ?: 'default-project.png')) }}"
+                                    alt="Image protégée"
+                                    style="max-width: 100%; height: auto; filter: grayscale(100%); cursor: not-allowed;"
+                                    title="Réservé aux administrateurs"
+                                />
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <strong class="project-name">{{ project.name }}</strong><br>
+                            <small class="project-desc">{{ project.description }}</small>
+                        </td>
+
+                        <td>
+                            {% if project.prodUrl %}
+                                <a href="{{ project.prodUrl }}" target="_blank" class="btn btn-access mb-2 d-block">Version sécurisée (HTTPS)</a>
+                            {% else %}
+                                <a href="#" class="btn btn-access mb-2 d-block disabled" title="Lien non disponible" onclick="return false;">Version sécurisée (HTTPS)</a>
+                            {% endif %}
+                            {% if project.preprodUrl %}
+                                <a href="{{ project.preprodUrl }}" target="_blank" class="btn btn-access d-block">Version non sécurisée (HTTP)</a>
+                            {% else %}
+                                <a href="#" class="btn btn-access d-block disabled" title="Lien non disponible" onclick="return false;">Version non sécurisée (HTTP)</a>
+                            {% endif %}
+                        </td>
+
+                        <td>
+    {% if app.user and is_granted('ROLE_ADMIN') %}
+        <a href="{{ path('project_edit', {'id': project.id}) }}" class="btn btn-success btn-sm me-2">Modifier</a>
+
+        <form method="post" action="{{ path('project_delete', {'id': project.id}) }}" onsubmit="return confirm('Supprimer ce projet ?');" style="display:inline;">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ project.id) }}">
+            <button class="btn btn-danger btn-sm" type="submit">Supprimer</button>
+        </form>
+    {% else %}
+        <em>Pas d’actions disponibles</em>
+    {% endif %}
+</td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="4">Aucun projet trouvé</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const searchButton = document.getElementById('searchButton');
+    const projectRows = document.querySelectorAll('#projectTable tr[data-search]');
+    const resultCount = document.getElementById('resultCount');
+
+    function filterProjects() {
+        const searchTerm = searchInput.value.toLowerCase();
+        let visibleCount = 0;
+
+        projectRows.forEach(row => {
+            const searchText = row.getAttribute('data-search');
+            const isVisible = searchText.includes(searchTerm);
+            row.style.display = isVisible ? '' : 'none';
+            if (isVisible) visibleCount++;
+        });
+
+        if (resultCount) {
+            resultCount.textContent = `${visibleCount} projet(s)`;
+            resultCount.className = visibleCount === 0 ? 'badge bg-danger' : 'badge bg-primary';
+        }
+    }
+
+    searchInput.addEventListener('input', filterProjects);
+    searchButton.addEventListener('click', filterProjects);
+
+    // Lance le filtre au chargement pour cacher les lignes si nécessaire
+    filterProjects();
+});
+
+{% if app.user and is_granted('ROLE_ADMIN') %}
+// Gestion du téléchargement des images (admins uniquement)
+document.addEventListener('DOMContentLoaded', function() {
+    const images = document.querySelectorAll('.project-image[data-download-url]');
+    images.forEach(image => {
+        image.addEventListener('click', function() {
+            const downloadUrl = this.getAttribute('data-download-url');
+            const imageName = (this.alt || 'default-image').replace(/\s+/g, '_').toLowerCase();
+            const fileExtension = downloadUrl.substring(downloadUrl.lastIndexOf('.'));
+            const filename = imageName + fileExtension;
+
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    });
+});
+{% endif %}
+</script>
+
+{% endblock %}

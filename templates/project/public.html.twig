@@ -1,0 +1,108 @@
+{% extends 'project/base.html.twig' %}
+
+{% block title %}Liste des projets (Lecture seule){% endblock %}
+
+{% block body %}
+<div class="d-flex justify-content-end mb-3">
+    {% if not app.user %}
+        <a href="{{ path('admin_login') }}" class="btn btn-primary">Se connecter</a>
+    {% else %}
+        <a href="{{ path('project_index') }}" class="btn btn-secondary">Retour à la gestion</a>
+    {% endif %}
+</div>
+
+<h2 class="mb-4">Liste des projets - Accès Public</h2>
+
+<div class="mb-3">
+    <input type="search" id="searchInput" class="form-control" placeholder="Rechercher un projet..." autofocus>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-bordered align-middle" id="projectsTable">
+        <thead class="table-light">
+            <tr>
+                <th style="width: 15%;">Image</th>
+                <th style="width: 35%;">Titre & Description</th>
+                <th style="width: 30%;">Liens</th>
+                <th style="width: 20%;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for project in projects %}
+                <tr>
+                    <td>
+                        <img
+                            src="{{ asset('images/' ~ (project.imageFilename ?: 'default-project.png')) }}"
+                            alt="{{ project.name }}"
+                            style="max-width: 100%; height: auto;"
+                        />
+                    </td>
+                    <td>
+                        <strong>{{ project.name }}</strong><br>
+                        <small>{{ project.description }}</small>
+                    </td>
+                    <td>
+                        {% if project.prodUrl %}
+                            <a href="{{ project.prodUrl }}" target="_blank" class="btn btn-access mb-2 d-block">
+                                Version sécurisée (HTTPS)
+                            </a>
+                        {% else %}
+                            <span class="btn btn-access mb-2 d-block disabled">HTTPS non dispo</span>
+                        {% endif %}
+
+                        {% if project.preprodUrl %}
+                            <a href="{{ project.preprodUrl }}" target="_blank" class="btn btn-access d-block">
+                                Version non sécurisée (HTTP)
+                            </a>
+                        {% else %}
+                            <span class="btn btn-access d-block disabled">HTTP non dispo</span>
+                        {% endif %}
+                    </td>
+                    <td>
+  <a href="{{ path('project_edit', {id: project.id}) }}" class="btn btn-sm btn-success me-2">Modifier</a>
+  <form action="{{ path('project_delete', {id: project.id}) }}" method="post" style="display:inline;" onsubmit="return confirm('Confirmer la suppression ?');">
+      <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ project.id) }}">
+      <button class="btn btn-sm btn-danger" type="submit">Supprimer</button>
+  </form>
+</td>
+
+
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="4">Aucun projet disponible.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Empêche les actions sur les boutons dans la page publique
+    document.querySelectorAll('.forbidden-button').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            alert("❌ Action interdite sur la page publique.\nMerci de vous rendre sur la page technique.");
+        });
+    });
+
+    // Fonctionnalité de recherche
+    const input = document.getElementById('searchInput');
+    const tableBody = document.querySelector('#projectsTable tbody');
+    if (input && tableBody) {
+        input.addEventListener('input', () => {
+            const filter = input.value.toLowerCase();
+            const rows = tableBody.getElementsByTagName('tr');
+            Array.from(rows).forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(filter) ? '' : 'none';
+            });
+        });
+    }
+});
+</script>
+
+
+</script>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends 'project/base.html.twig' %}
+
+{% block title %}Inscription utilisateur{% endblock %}
+
+{% block body %}
+<h1>Inscription utilisateur</h1>
+
+{{ form_start(RegistrationForm) }}
+
+<div class="mb-3">
+    {{ form_label(RegistrationForm.username, 'Nom d’utilisateur') }}
+    {{ form_widget(RegistrationForm.username, {'attr': {'class': 'form-control', 'placeholder': 'Entrez votre nom'}}) }}
+    {{ form_errors(RegistrationForm.username) }}
+</div>
+
+<div class="mb-3">
+    {{ form_label(RegistrationForm.plainPassword, 'Mot de passe') }}
+    {{ form_widget(RegistrationForm.plainPassword, {'attr': {'class': 'form-control', 'placeholder': 'Entrez un mot de passe'}}) }}
+    {{ form_errors(RegistrationForm.plainPassword) }}
+</div>
+<p>Vous avez déjà un compte ? <a href="{{ path('user_login') }}">Se connecter</a></p>
+
+<button class="btn btn-primary">S'inscrire</button>
+
+{{ form_end(RegistrationForm) }}
+{% endblock %}
