@@ -37,3 +37,5 @@ services:
 
 volumes:
   pgdata:
+    external: true
+    name: gestion_de_projets_pgdata
